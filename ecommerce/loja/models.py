@@ -9,6 +9,9 @@ class Cliente(models.Model):
     id_sessao = models.CharField(max_length=200, null=True, blank=True)
     usuario =   models.OneToOneField(User, null=True, blank=True, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return str(self.email)
+
 class Categoria(models.Model): #(Masculino, Feminino, Infantil)
     nome = models.CharField(max_length=200, null=True, blank=True)
 
@@ -64,10 +67,19 @@ class Pedido(models.Model):
     cliente =          models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.SET_NULL)
     endereco =         models.ForeignKey(Endereco, null=True, blank=True, on_delete=models.SET_NULL)
 
+    def __str__(self):
+        if self.finalizado:
+            finalizado_pt = 'Sim'
+        else: finalizado_pt = 'Não'
+        return f'Cliente: {self.cliente.email} -> id_pedido: {self.id} -> Finalizado: {finalizado_pt}'
+
 class ItensPedido(models.Model):
     quantidade =   models.IntegerField(default=0)
     item_estoque = models.ForeignKey(ItemEstoque, null=True, blank=True, on_delete=models.SET_NULL)
     pedido =       models.ForeignKey(Pedido, null=True, blank=True, on_delete=models.SET_NULL)
+
+    def __str__(self):
+        return f'Id pedido: {self.pedido.id} -> Produto: {self.item_estoque.produto.nome}, {self.item_estoque.tamanho}, {self.item_estoque.cor.nome}'
 
 class Banner(models.Model):
     imagem =       models.ImageField(null=True, blank=True)
