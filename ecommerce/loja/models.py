@@ -60,6 +60,9 @@ class Endereco(models.Model):
     numero =      models.IntegerField(default=0)
     cliente =     models.ForeignKey(Cliente, null=True, blank=True, on_delete=models.SET_NULL)
 
+    def __str__(self):
+        return f'{self.cidade}-{self.estado} - {self.cliente} - {self.rua} - {self.cep}'
+
 class Pedido(models.Model):
     codigo_transacao = models.CharField(max_length=200, null=True, blank=True)
     finalizado =       models.BooleanField(default=False)
@@ -72,6 +75,18 @@ class Pedido(models.Model):
             finalizado_pt = 'Sim'
         else: finalizado_pt = 'Não'
         return f'Cliente: {self.cliente.email} -> id_pedido: {self.id} -> Finalizado: {finalizado_pt}'
+    
+    @property
+    def quantidade_total(self):
+        itens_pedido = ItensPedido.objects.filter(pedido__id=self.id)
+        quantidade = sum([item.quantidade for item in itens_pedido])
+        return quantidade
+
+    @property
+    def preco_total(self):
+        itens_pedido = ItensPedido.objects.filter(pedido__id=self.id)
+        preco = sum([item.preco_total for item in itens_pedido])
+        return preco
 
 class ItensPedido(models.Model):
     quantidade =   models.IntegerField(default=0)
@@ -80,6 +95,10 @@ class ItensPedido(models.Model):
 
     def __str__(self):
         return f'Id pedido: {self.pedido.id} -> Produto: {self.item_estoque.produto.nome}, {self.item_estoque.tamanho}, {self.item_estoque.cor.nome}'
+    
+    @property
+    def preco_total(self):
+        return self.quantidade * self.item_estoque.produto.preco
 
 class Banner(models.Model):
     imagem =       models.ImageField(null=True, blank=True)
